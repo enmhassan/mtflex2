@@ -1,0 +1,26 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<h1>Roles</h1>
+<p><a class="btn btn-primary" href="{% url 'accounts:role_add' %}">Add Role</a>
+   <a class="btn btn-secondary" href="{% url 'accounts:assign_roles' %}">Assign Roles</a></p>
+
+<table class="table">
+  <thead><tr><th>Name</th><th>Permissions</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for role in object_list %}
+    <tr>
+      <td>{{ role.name }}</td>
+      <td>{% for p in role.permissions.all %}{{ p.codename }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'accounts:role_edit' role.pk %}">Edit</a>
+        <a class="btn btn-sm btn-outline-danger" href="{% url 'accounts:role_delete' role.pk %}">Delete</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="3">No roles found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

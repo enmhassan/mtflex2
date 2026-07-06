@@ -1,0 +1,10 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+  <h1>{% if form.instance.pk %}Edit Role{% else %}Add Role{% endif %}</h1>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">Save</button>
+    <a class="btn btn-link" href="{% url 'accounts:role_list' %}">Cancel</a>
+  </form>
+{% endblock %}

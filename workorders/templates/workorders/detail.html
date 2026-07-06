@@ -1,0 +1,157 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 950px;">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center pb-3 mb-4 border-bottom">
+        <div>
+            <h1 class="h2 text-gray-800 mb-1 fw-bold text-primary">Work Order Dispatch Profile</h1>
+            <p class="text-muted mb-0">Reviewing execution parameters, technician instructions, and audit histories.</p>
+        </div>
+        <div class="mt-3 mt-sm-0">
+            <a class="btn btn-sm btn-outline-secondary px-3 fw-semibold shadow-sm" href="{% url 'workorders:list' %}">
+                <i class="bi bi-arrow-left me-1"></i> Back to Queue
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6">
+            <div class="card h-100 shadow-sm border-0 border-start border-4 border-secondary-subtle" style="background-color: #f8f9fa;">
+                <div class="card-body p-3">
+                    <h6 class="text-uppercase tracking-wider text-muted fs-7 fw-bold mb-2">1. Production Origin Request</h6>
+                    <p class="mb-1 small"><strong>Issued By:</strong> 
+                        {% if object.work_request.created_by %}
+                            {{ object.work_request.created_by.username }}
+                        {% else %}
+                            Direct Entry (No Request Link)
+                        {% endif %}
+                    </p>
+                    <p class="mb-0 small text-muted"><strong>Issued On:</strong> 
+                        {% if object.work_request.created_at %}
+                            {{ object.work_request.created_at|date:"Y-m-d H:i" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <div class="card h-100 shadow-sm border-0 border-start border-4 border-success" style="background-color: #f4fbf7;">
+                <div class="card-body p-3">
+                    <h6 class="text-uppercase tracking-wider text-success-emphasis fs-7 Grandma fw-bold mb-2">2. Maintenance Dispatch Authorization</h6>
+                    <p class="mb-1 small"><strong>Authorized By:</strong> {{ object.created_by.username|default:"System Log" }}</p>
+                    <p class="mb-0 small text-muted"><strong>Authorized On:</strong> {{ object.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-secondary text-uppercase tracking-wider fs-7">
+                Technical Assignment Parameters
+            </h6>
+            <div class="d-inline-flex gap-2">
+                {% if object.status == "closed" or object.status == "Closed" %}
+                    <span class="badge bg-success text-white px-2.5 py-1.5 fw-semibold text-capitalize rounded">Closed / Resolved</span>
+                {% elif object.status == "in_progress" %}
+                    <span class="badge bg-primary text-white px-2.5 py-1.5 fw-semibold text-capitalize rounded">In Progress</span>
+                {% else %}
+                    <span class="badge bg-secondary text-white px-2.5 py-1.5 fw-semibold text-capitalize rounded">Open / Dispatched</span>
+                {% endif %}
+                
+                <span class="badge bg-light text-primary border px-2.5 py-1.5 fw-bold rounded">
+                    WO#{{ object.pk }}
+                </span>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="row g-0 border-bottom border-light-subtle">
+                <div class="col-sm-3 bg-light px-4 py-3 fw-bold text-secondary fs-7 text-uppercase tracking-wider border-end border-light-subtle">Order Title / Target</div>
+                <div class="col-sm-9 px-4 py-3 fw-semibold text-dark fs-5">{{ object.title }}</div>
+            </div>
+
+            <div class="row g-0 border-bottom border-light-subtle">
+                <div class="col-sm-3 bg-light px-4 py-3 fw-bold text-secondary fs-7 text-uppercase tracking-wider border-end border-light-subtle">Target Equipment / Asset</div>
+                <div class="col-sm-9 px-4 py-3">
+                    <div class="d-flex align-items-center">
+                        <span class="fw-semibold text-dark fs-6">{{ object.asset.asset_name|default:object.asset|default:"Unassigned Asset" }}</span>
+                        {% if object.asset.asset_code %}
+                            <span class="ms-2 text-muted text-xs bg-light px-1.5 py-0.5 rounded border fs-7 fw-bold">CODE: {{ object.asset.asset_code }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-0 border-bottom border-light-subtle">
+                <div class="col-sm-3 bg-light px-4 py-3 fw-bold text-secondary fs-7 text-uppercase tracking-wider border-end border-light-subtle">Work Class Category</div>
+                <div class="col-sm-9 px-4 py-3 fw-medium text-secondary fs-6">{{ object.category|default:"General Maintenance" }}</div>
+            </div>
+
+            <div class="row g-0 border-bottom border-light-subtle">
+                <div class="col-sm-3 bg-light px-4 py-3 fw-bold text-secondary fs-7 text-uppercase tracking-wider border-end border-light-subtle">Priority Rating</div>
+                <div class="col-sm-9 px-4 py-3">
+                    {% if object.priority == "high" %}
+                        <span class="badge bg-danger-subtle text-danger px-3 py-1.5 fw-bold text-uppercase border border-danger-subtle rounded-pill" style="font-size: 0.75rem;">High Response Required</span>
+                    {% elif object.priority == "medium" %}
+                        <span class="badge bg-warning-subtle text-warning-emphasis px-3 py-1.5 fw-bold text-uppercase border border-warning-subtle rounded-pill" style="font-size: 0.75rem;">Medium Priority</span>
+                    {% else %}
+                        <span class="badge bg-info-subtle text-info-emphasis px-3 py-1.5 fw-bold text-uppercase border border-info-subtle rounded-pill" style="font-size: 0.75rem;">Low / Routine Response</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row g-0 border-bottom border-light-subtle">
+                <div class="col-sm-3 bg-light px-4 py-3 fw-bold text-secondary fs-7 text-uppercase tracking-wider border-end border-light-subtle">Completion Status</div>
+                <div class="col-sm-9 px-4 py-3 fw-semibold fs-6">
+                    {% if object.status == "closed" or object.done %}
+                        <span class="text-success d-inline-flex align-items-center">
+                            <i class="bi bi-check-circle-fill me-1.5"></i> Task Closed / Completed
+                        </span>
+                    {% else %}
+                        <span class="text-warning d-inline-flex align-items-center">
+                            <i class="bi bi-clock-history me-1.5"></i> Execution Pending
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+             <div class="row g-0 border-bottom border-light-subtle">
+                <div class="col-sm-3 bg-light px-4 py-4 fw-bold text-secondary fs-7 text-uppercase tracking-wider border-end border-light-subtle">Request Notes</div>
+                <div class="col-sm-9 px-4 py-4">
+                    {% if object.description %}
+                        <p class="text-dark mb-0 lh-base text-break" style="white-space: pre-wrap;">{{ object.description }}</p>
+                    {% else %}
+                        <em class="text-muted small">No detailed work scope instructions logged for this order.</em>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row g-0">
+                <div class="col-sm-3 bg-light px-4 py-4 fw-bold text-secondary fs-7 text-uppercase tracking-wider border-end border-light-subtle">Engineering Work Scope</div>
+                <div class="col-sm-9 px-4 py-4">
+                    {% if object.description %}
+                        <p class="text-dark mb-0 lh-base text-break" style="white-space: pre-wrap;">{{ object.eng_description }}</p>
+                    {% else %}
+                        <em class="text-muted small">No detailed work scope instructions logged for this order.</em>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-light border-top p-3 px-4 d-flex flex-sm-row justify-content-end gap-2">
+            {% if request.user.is_superuser or object.created_by == request.user %}
+                <a class="btn btn-outline-secondary px-4 py-2 fw-semibold shadow-sm" href="{% url 'workorders:edit' object.pk %}">
+                    Edit Parameters
+                </a>
+                <a class="btn btn-outline-danger px-4 py-2 fw-semibold shadow-sm" href="{% url 'workorders:delete' object.pk %}">
+                    Delete Dispatch
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

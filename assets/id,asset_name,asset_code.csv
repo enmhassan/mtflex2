@@ -1,0 +1,88 @@
+id,asset_name,asset_code
+1,LV1 GF Machine,LV0GF
+2,LV1 BM M3,LV0BM3
+3,LV1 BM M4,LV0BM4
+4,LV1 BM M5,LV0BM5
+5,LV1 BM M6,LV0BM6
+6,LV1 ARBURG,LV0ARBRG
+7,LV1 Cap Assembly Machine,LV0CAPA
+8,LV1 NISSEI 1,LV0INNER
+9,LV1 NISSEI 2,LV0INNER
+10,LV1 Weighing Booth,NULL
+11,LV1 Tank A,LV0PREP
+12,LV1 Tank E,LV0PREP
+13,LV1 Tank D,LV0PREP
+14,LV1 IT PILLOW,LV0PILIT
+15,LV1 JP PILLOW,LV0PILJP
+16,LV1 KOZME,NULL
+17,LV1 Cartons Elevator,NULL
+18,SV Bottelpack 312,SV0BP312
+19,SV Bottelpack 360,SV0BP360
+20,SV Bottelpack 460,SV0BP460
+21,SV MAKRO 312,NULL
+22,SV MAKRO 460,NULL
+23,SV Tank 1,NULL
+24,SV Tank 2,NULL
+25,SV Tank 3,NULL
+26,SV Tank 4,NULL
+27,SV Tank 5,NULL
+28,SV Tank 6,NULL
+29,Autoclave BOSCH 1,NULL
+30,Autoclave BOSCH 2,NULL
+31,LV2 Bottelpack 360,LV0BP360
+32,LV2 MAKRO,NULL
+33,LV2 APSOL Robot,NULL
+34,LV2 Carton Machine,NULL
+35,LV2 Wrapping Machine,NULL
+36,LV2 Tank 1,NULL
+37,LV2 Tank 2,NULL
+38,LV1 Preparation Lifter,NULL
+39,Final Packaging Transpallet,NULL
+40,Tablets Compression Machine,TABCOMP
+41,Autoclave STEELCO,NULL
+42,PHARMASTILL 1,LV0WFI
+43,PHARMASTILL 2,LV0WFI
+44,BMS System,ENGBMS
+45,LV1 Carton Machine,LV0CRTON
+46,LV1 Preparation System,LV0PREP
+47,Compressor 1,ENGCOMP
+48,Compressor 2,ENGCOMP
+49,Compressor 3,ENGCOMP
+50,RO Water Station,LV0PWS
+51,Generator,GEN
+52,Tablets Blistering Machine,TABBLIST
+54,Tablets Coating Machine,TABCOAT
+55,American Boiler,ENGBOILA
+56,BOSCH Boiler,ENGBOIL2
+57,Compressors ES System,NULL
+58,LV1 Plastic Supply System,NULL
+59,Autoclaves Cooling System,NULL
+60,LV2 AHU 1,ENGAHU
+61,LV2 AHU 2,ENGAHU
+62,LV2 AHU 3,ENGAHU
+63,LV2 AHU 4,ENGAHU
+64,LV2 Preparation System,NULL
+65,Final Pallet Shrink Wrapping Machine,NULL
+66,Tablets Dehumidifier (AHU1),NULL
+67,Tablets Dehumidifier (AHU4),NULL
+68,Pure Steam Generator,NULL
+69,LV2 Dispensing,NULL
+70,Medium Voltage Switchgear,NULL
+71,LV2 Strapping Machine,NULL
+72,Green Box Chiller,NULL
+73,LV1 Dispensing,NULL
+74,Raw Materials Warehouse,NULL
+75,Raw Materials Weekly Store,NULL
+76,LV2 Carton Labeling Machine,NULL
+77,LV2 Press Conveyor,NULL
+78,Pelletizing Machine,NULL
+79,SV 312 Preparation System,NULL
+82,SV 360 Preparation System,NULL
+84,SV 460 Preparation System,NULL
+85,Warehouse 1,NULL
+86,Warehouse 3,NULL
+87,Warehouse 4,NULL
+88,Tablets Raw Materials Warehouse,NULL
+89,Tablets IT Vacuum Dryer,NULL
+90,Tablets Dryer,NULL
+91,Cap Section,NULL

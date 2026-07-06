@@ -1,0 +1,127 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 900px;">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center pb-3 mb-4 border-bottom">
+        <div>
+            <h1 class="h2 text-gray-800 mb-1 fw-bold text-primary">Convert Request to Work Order</h1>
+            <p class="text-muted mb-0">Authorize incoming production ticket parameters to deploy technical staff.</p>
+        </div>
+        <div class="mt-3 mt-sm-0">
+            <a class="btn btn-sm btn-outline-secondary px-3 fw-semibold shadow-sm" href="{% url 'workorders:list' %}">
+                Cancel & Return
+            </a>
+        </div>
+    </div>
+
+    <div class="card h-100 shadow-sm border-0 border-start border-4 border-primary bg-light mb-4">
+        <div class="card-body p-4">
+            <h6 class="text-uppercase tracking-wider text-primary fw-bold mb-3 fs-7">
+                <i class="bi bi-file-earmark-text me-1"></i> 1. Incoming Production Request Summary
+            </h6>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <p class="mb-1 small text-muted text-uppercase tracking-wide fw-semibold" style="font-size: 0.7rem;">Submitted By</p>
+                    <p class="mb-0 fw-semibold text-dark">{{ work_request.created_by.username|default:"System Log" }}</p>
+                </div>
+                <div class="col-sm-6">
+                    <p class="mb-1 small text-muted text-uppercase tracking-wide fw-semibold" style="font-size: 0.7rem;">Target Equipment / Asset</p>
+                    <p class="mb-0 fw-semibold text-dark">
+                        {{ work_request.asset.asset_name }} 
+                        {% if work_request.asset.asset_code %}
+                            <span class="ms-1 px-1.5 py-0.5 border bg-white rounded text-xs text-muted fs-7">CODE: {{ work_request.asset.asset_code }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-sm-12 border-top border-light-subtle pt-3">
+                    <p class="mb-1 small text-muted text-uppercase tracking-wide fw-semibold" style="font-size: 0.7rem;">Production Issue Type</p>
+                    <p class="mb-2 fw-bold text-dark fs-6">"{{ work_request.type }}"</p>
+                </div>
+                <div class="col-sm-12 border-top border-light-subtle pt-3">
+                    <p class="mb-1 small text-muted text-uppercase tracking-wide fw-semibold" style="font-size: 0.7rem;">Original Operator Field Notes</p>
+                    {% if work_request.description %}
+                        <p class="mb-0 text-secondary small lh-base text-break" style="white-space: pre-wrap;">{{ work_request.description }}</p>
+                    {% else %}
+                        <p class="mb-0 text-muted small fst-italic">No additional field notes logged by production.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-secondary text-uppercase tracking-wider fs-7">
+                2. Maintenance Dispatch Authorization Fields
+            </h6>
+            <span class="badge bg-light text-success border px-2.5 py-1.5 fw-bold rounded">
+                Authorization Pipeline
+            </span>
+        </div>
+
+        <form method="POST" novalidate>
+            {% csrf_token %}
+
+            <div class="card-body p-0">
+                <div class="row g-0 border-bottom border-light-subtle align-items-center">
+                    <label class="col-sm-3 bg-light px-4 py-3 fw-bold text-secondary fs-7 text-uppercase tracking-wider border-end border-light-subtle mb-0 align-self-stretch d-flex align-items-center">
+                        Work Order Title <span class="text-danger ms-1">*</span>
+                    </label>
+                    <div class="col-sm-9 px-4 py-3">
+                        <input type="text" name="title" class="form-control fw-medium text-dark" value="{{ work_request.type }}" required>
+                        <div class="form-text text-muted text-xs mt-1 fs-7">Defaults to the selected production problem type. Clean or update if necessary.</div>
+                    </div>
+                </div>
+
+                <div class="row g-0 border-bottom border-light-subtle align-items-center">
+                    <label class="col-sm-3 bg-light px-4 py-3 fw-bold text-secondary fs-7 text-uppercase tracking-wider border-end border-light-subtle mb-0 align-self-stretch d-flex align-items-center">
+                        Work Class Category <span class="text-danger ms-1">*</span>
+                    </label>
+                    <div class="col-sm-9 px-4 py-3">
+                        <select name="category" class="form-select fw-medium text-dark" required>
+                            <option value="">-- Select Technical Class --</option>
+                            <option value="Electrical">Electrical</option>
+                            <option value="Mechanical">Mechanical</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <div class="form-text text-muted text-xs mt-1 fs-7">Classify the underlying system dependency for metrics classification.</div>
+                    </div>
+                </div>
+
+                <div class="row g-0 border-bottom border-light-subtle align-items-center">
+                    <label class="col-sm-3 bg-light px-4 py-3 fw-bold text-secondary fs-7 text-uppercase tracking-wider border-end border-light-subtle mb-0 align-self-stretch d-flex align-items-center">
+                        Priority Level <span class="text-danger ms-1">*</span>
+                    </label>
+                    <div class="col-sm-9 px-4 py-3">
+                        <select name="priority" class="form-select fw-semibold" required>
+                            <option value="low" class="text-info fw-semibold">Low / Routine</option>
+                            <option value="medium" class="text-warning-emphasis fw-semibold" selected>Medium / Normal</option>
+                            <option value="high" class="text-danger fw-semibold">High / Emergency Response</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-0">
+                    <label class="col-sm-3 bg-light px-4 py-4 fw-bold text-secondary fs-7 text-uppercase tracking-wider border-end border-light-subtle align-self-stretch d-flex align-items-center">
+                        Engineering Instructions
+                    </label>
+                    <div class="col-sm-9 px-4 py-4">
+                        <textarea name="description" class="form-control fw-medium text-dark" rows="5" placeholder="Specify technical steps, safety requirements, or tool configurations here...">{{ work_request.eng_description }}</textarea>
+                        <div class="form-text text-muted text-xs mt-1 fs-7">Pre-filled with raw operator logs. Expand this section to include actionable directives for technicians.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-light border-top p-3 px-4 d-flex justify-content-end gap-2">
+                <a class="btn btn-outline-secondary px-4 py-2 fw-semibold" href="{% url 'workorders:list' %}">
+                    Cancel
+                </a>
+                <button class="btn btn-success px-4 py-2 fw-semibold shadow-sm" type="submit">
+                    Approve & Generate Work Order
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

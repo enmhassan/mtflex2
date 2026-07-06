@@ -1,0 +1,179 @@
+{% extends 'accounts/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Block -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center pb-3 mb-4 border-bottom">
+        <div>
+            <h1 class="h2 text-gray-800 mb-1 fw-bold text-primary">Pending Work Orders</h1>
+            <p class="text-muted mb-0">Track active engineering dispatch actions, execution statuses, and priority queues.</p>
+        </div>
+        <!-- Grouped Action Buttons Frame -->
+        <div class="d-flex align-items-center gap-2 mt-3 mt-sm-0">
+            <!-- New: Link to Closed Work Orders Archive -->
+            <a class="btn btn-outline-secondary d-inline-flex align-items-center shadow-sm px-3 fw-semibold" href="{% url 'workorders:closed' %}">
+                <i class="bi bi-archive me-2"></i> Closed Archive
+            </a>
+            <a class="btn btn-primary d-inline-flex align-items-center shadow-sm px-4 fw-semibold" href="{% url 'workorders:create' %}">
+                <i class="bi bi-plus-lg me-2"></i> Create Work Order
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Active Operations Queue Card -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-secondary text-uppercase tracking-wider fs-7">Active Floor Operations</h6>
+            <span class="badge bg-primary px-2.5 py-1.5 fw-semibold rounded-pill">
+                {{ object_list|length }} In Backlog
+            </span>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered border-light-subtle align-middle mb-0">
+                <thead class="table-light text-secondary fs-7 text-uppercase fw-semibold">
+                    <tr>
+                        <th scope="col" class="ps-4" style="width: 70px;">#</th>
+                        <th scope="col">Task Description / Title</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Asset Description</th>
+                        <th scope="col" style="width: 110px;">Priority</th>
+                        <th scope="col" style="width: 120px;">Status</th>
+                        <th scope="col">Assigned By</th>
+                        <th scope="col">Date Logged</th>
+                        <th scope="col" class="text-end pe-4" style="width: 160px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="fs-6">
+                    {% for wo in object_list %}
+                    {# Standardized status logic check to prevent substring evaluation bugs #}
+                    {% if wo.status == "open" or wo.status == "in_progress" %}
+                    <tr>
+                        <td class="ps-4 fw-semibold text-muted">#{{ wo.pk }}</td>
+                        
+                        <td>
+                            <a href="{% url 'workorders:detail' wo.pk %}" class="text-decoration-none fw-semibold text-dark hover-primary d-block mb-1">
+                                {{ wo.title }}
+                            </a>
+                            {% if wo.work_request %}
+                                <span class="badge bg-light text-muted border text-xs fw-normal fs-7">From Req #{{ wo.work_request.pk }}</span>
+                            {% else %}
+                                <span class="badge bg-light text-muted border text-xs fw-normal fs-7">Direct Entry</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="fw-medium text-secondary small">{{ wo.category|default:"Unclassified" }}</td>
+                        
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-medium text-dark small-line-height">{{ wo.asset.asset_name|default:wo.asset }}</span>
+                                {% if wo.asset.asset_code %}
+                                    <span class="text-muted tracking-wide mt-0.5 d-inline-block text-xs" style="font-size: 0.75rem;">CODE: {{ wo.asset.asset_code }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td>
+                            {% if wo.priority == "high" %}
+                                <span class="badge bg-danger-subtle text-danger px-2.5 py-1.5 fw-bold text-uppercase w-100 border border-danger-subtle rounded-pill" style="font-size: 0.7rem;">High</span>
+                            {% elif wo.priority == "medium" %}
+                                <span class="badge bg-warning-subtle text-warning-emphasis px-2.5 py-1.5 fw-bold text-uppercase w-100 border border-warning-subtle rounded-pill" style="font-size: 0.7rem;">Medium</span>
+                            {% else %}
+                                <span class="badge bg-info-subtle text-info-emphasis px-2.5 py-1.5 fw-bold text-uppercase w-100 border border-info-subtle rounded-pill" style="font-size: 0.7rem;">Low</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if wo.status == "in_progress" %}
+                                <span class="badge bg-primary text-white px-2.5 py-1.5 fw-semibold text-capitalize w-100 rounded" style="font-size: 0.75rem;">In Progress</span>
+                            {% else %}
+                                <span class="badge bg-secondary text-white px-2.5 py-1.5 fw-semibold text-capitalize w-100 rounded" style="font-size: 0.75rem;">Open</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td>
+                            <span class="text-secondary small fw-medium">
+                                {% if wo.created_by %}{{ wo.created_by.username }}{% else %}System{% endif %}
+                            </span>
+                        </td>
+                        
+                        <td class="text-muted small fw-medium">
+                            {{ wo.created_at|date:"Y-m-d" }}
+                            <span class="d-block text-xs text-muted-opacity fs-7 mt-0.5">{{ wo.created_at|date:"H:i" }}</span>
+                        </td>
+                        
+                        <td class="text-end pe-4">
+                            {% if request.user.is_superuser or wo.created_by == request.user %}
+                                <div class="btn-group shadow-sm">
+                                    <a class="btn btn-sm btn-outline-secondary px-2.5 py-1.5 fw-medium" href="{% url 'workorders:edit' wo.pk %}" title="Modify parameters">
+                                        Edit
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-danger px-2.5 py-1.5 fw-medium" href="{% url 'workorders:delete' wo.pk %}" title="Remove record">
+                                        Delete
+                                    </a>
+                                </div>
+                            {% else %}
+                                <span class="text-xs text-muted fst-italic">Read-Only</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center py-5 text-muted">
+                            <div class="py-4">
+                                <p class="mb-1 fw-semibold fs-5">No Pending Work Orders</p>
+                                <p class="text-secondary small mb-0">The factory schedule is running clear with no active open dispatches.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination Infrastructure Layer -->
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Page navigation" class="d-flex justify-content-between align-items-center pt-2">
+        <small class="text-muted fw-medium">
+            Showing page <strong>{{ page_obj.number }}</strong> of {{ page_obj.paginator.num_pages }}
+        </small>
+        
+        <ul class="pagination pagination-sm shadow-sm mb-0">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link px-3 py-2 fw-medium text-secondary" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link px-3 py-2 text-muted">Previous</span>
+                </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link px-3 py-2 fw-bold">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link px-3 py-2 text-secondary fw-medium" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link px-3 py-2 fw-medium text-secondary" href="?page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link px-3 py-2 text-muted">Next</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
