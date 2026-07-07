@@ -28,6 +28,31 @@
                 {{ object_list|length }} In Backlog
             </span>
         </div>
+        <div class="card-body bg-light border-bottom py-3">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-sm-4 col-md-3">
+                    <label class="form-label small fw-semibold">Asset</label>
+                    <select name="asset" class="form-select form-select-sm">
+                        <option value="">All assets</option>
+                        {% for asset in assets %}
+                            <option value="{{ asset.pk }}" {% if filter_asset == asset.pk|stringformat:"s" %}selected{% endif %}>{{ asset.asset_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-3 col-md-2">
+                    <label class="form-label small fw-semibold">From</label>
+                    <input type="date" name="from_date" value="{{ filter_from_date }}" class="form-control form-control-sm">
+                </div>
+                <div class="col-sm-3 col-md-2">
+                    <label class="form-label small fw-semibold">To</label>
+                    <input type="date" name="to_date" value="{{ filter_to_date }}" class="form-control form-control-sm">
+                </div>
+                <div class="col-sm-4 col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Apply</button>
+                    <a href="{% url 'workorders:list' %}" class="btn btn-outline-secondary btn-sm w-100">Clear</a>
+                </div>
+            </form>
+        </div>
         
         <div class="table-responsive">
             <table class="table table-hover table-bordered border-light-subtle align-middle mb-0">
@@ -36,7 +61,7 @@
                         <th scope="col" class="ps-4" style="width: 70px;">#</th>
                         <th scope="col">Task Description / Title</th>
                         <th scope="col">Category</th>
-                        <th scope="col">Asset Description</th>
+                        <th scope="col">Asset</th>
                         <th scope="col" style="width: 110px;">Priority</th>
                         <th scope="col" style="width: 120px;">Status</th>
                         <th scope="col">Assigned By</th>
@@ -143,7 +168,7 @@
         <ul class="pagination pagination-sm shadow-sm mb-0">
             {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link px-3 py-2 fw-medium text-secondary" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    <a class="page-link px-3 py-2 fw-medium text-secondary" href="?page={{ page_obj.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">Previous</a>
                 </li>
             {% else %}
                 <li class="page-item disabled">
@@ -158,14 +183,14 @@
                     </li>
                 {% else %}
                     <li class="page-item">
-                        <a class="page-link px-3 py-2 text-secondary fw-medium" href="?page={{ num }}">{{ num }}</a>
+                        <a class="page-link px-3 py-2 text-secondary fw-medium" href="?page={{ num }}{% if query_string %}&{{ query_string }}{% endif %}">{{ num }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
             
             {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link px-3 py-2 fw-medium text-secondary" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    <a class="page-link px-3 py-2 fw-medium text-secondary" href="?page={{ page_obj.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">Next</a>
                 </li>
             {% else %}
                 <li class="page-item disabled">

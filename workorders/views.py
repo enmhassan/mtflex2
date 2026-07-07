@@ -1,5 +1,5 @@
 from datetime import datetime
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.urls import reverse
@@ -12,6 +12,34 @@ from workrequests.models import WorkRequest
 from .models import WorkOrder
 from django.views.generic import ListView, TemplateView
 from django.utils import timezone
+
+
+def apply_workorder_filters(request, qs):
+    asset_id = request.GET.get('asset')
+    from_date = request.GET.get('from_date')
+    to_date = request.GET.get('to_date')
+
+    if asset_id:
+        try:
+            qs = qs.filter(asset_id=int(asset_id))
+        except (ValueError, TypeError):
+            pass
+
+    if from_date:
+        try:
+            start = datetime.strptime(from_date, '%Y-%m-%d')
+            qs = qs.filter(created_at__date__gte=start.date())
+        except ValueError:
+            pass
+
+    if to_date:
+        try:
+            end = datetime.strptime(to_date, '%Y-%m-%d')
+            qs = qs.filter(created_at__date__lte=end.date())
+        except ValueError:
+            pass
+
+    return qs
 
 
 class DashboardOverviewView(LoginRequiredMixin, TemplateView):
@@ -116,6 +144,8 @@ class WorkOrderListView(LoginRequiredMixin, View):
         from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
         qs = WorkOrder.objects.filter(status__in=['open', 'in_progress', 'Open', 'In Progress']).order_by('-created_at')
+        qs = apply_workorder_filters(request, qs)
+
         paginator = Paginator(qs, 20)
         page = request.GET.get('page')
         try:
@@ -125,16 +155,31 @@ class WorkOrderListView(LoginRequiredMixin, View):
         except EmptyPage:
             page_obj = paginator.page(paginator.num_pages)
 
+        query_params = request.GET.copy()
+        if 'page' in query_params:
+            del query_params['page']
+
         return render(
             request,
             'workorders/list.html',
-            {'object_list': page_obj.object_list, 'page_obj': page_obj}
+            {
+                'object_list': page_obj.object_list,
+                'page_obj': page_obj,
+                'assets': Asset.objects.all().order_by('asset_name'),
+                'filter_asset': request.GET.get('asset', ''),
+                'filter_from_date': request.GET.get('from_date', ''),
+                'filter_to_date': request.GET.get('to_date', ''),
+                'query_string': query_params.urlencode(),
+            }
         )
 
 class ClosedWorkOrderListView(LoginRequiredMixin, View):
     def get(self, request):
         from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
         qs = WorkOrder.objects.filter(status='closed').order_by('-created_at')
+        qs = apply_workorder_filters(request, qs)
+
         paginator = Paginator(qs, 30)
         page = request.GET.get('page')
         try:
@@ -143,7 +188,24 @@ class ClosedWorkOrderListView(LoginRequiredMixin, View):
             page_obj = paginator.page(1)
         except EmptyPage:
             page_obj = paginator.page(paginator.num_pages)
-        return render(request, 'workorders/closed.html', {'object_list': page_obj.object_list, 'page_obj': page_obj})
+
+        query_params = request.GET.copy()
+        if 'page' in query_params:
+            del query_params['page']
+
+        return render(
+            request,
+            'workorders/closed.html',
+            {
+                'object_list': page_obj.object_list,
+                'page_obj': page_obj,
+                'assets': Asset.objects.all().order_by('asset_name'),
+                'filter_asset': request.GET.get('asset', ''),
+                'filter_from_date': request.GET.get('from_date', ''),
+                'filter_to_date': request.GET.get('to_date', ''),
+                'query_string': query_params.urlencode(),
+            }
+        )
 
 
 class WorkOrderDetailView(LoginRequiredMixin, View):
